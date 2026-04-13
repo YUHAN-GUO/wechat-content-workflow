@@ -34,13 +34,22 @@
 
 ### 1. 克隆并安装
 
+> **仓库大小说明**：本项目已配置 `.gitignore`，GitHub 仓库仅包含源代码（~1MB）。克隆后需要安装依赖（约 200MB）。
+
 ```bash
+# 克隆仓库（仅下载代码，约 1MB）
 git clone https://github.com/yourname/wechat-content-workflow.git
 cd wechat-content-workflow
 
-# 安装所有依赖
+# 安装所有依赖（约 200MB，包含 DailyHotApi）
 npm run install:all
 ```
+
+**依赖分布：**
+| 目录 | 大小 | 说明 |
+|------|------|------|
+| `node_modules/` | ~63MB | 主项目依赖 |
+| `services/dailyhot-api/node_modules/` | ~126MB | DailyHotApi 依赖 |
 
 ### 2. 配置
 
