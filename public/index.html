@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>公众号内容创作工作流</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { 50:'#eef2ff',100:'#e0e7ff',200:'#c7d2fe',300:'#a5b4fc',400:'#818cf8',500:'#6366f1',600:'#4f46e5',700:'#4338ca',800:'#3730a3',900:'#312e81',950:'#1e1b4b' },
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-50 min-h-screen antialiased">
+
+  <!-- Header -->
+  <header class="fixed top-0 inset-x-0 z-50 bg-white/80 backdrop-blur-lg border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center">
+          <i class="fas fa-rocket text-white text-sm"></i>
+        </div>
+        <span class="font-bold text-slate-800 text-lg">公众号创作工作流</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <button onclick="App.openSettings()" class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-slate-100 text-slate-500 transition-colors" title="API 设置">
+          <i class="fas fa-cog"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="pt-20 pb-10 px-4">
+    <div class="max-w-7xl mx-auto">
+      
+      <!-- Workflow Steps -->
+      <div class="flex items-center justify-center gap-4 mb-8 text-sm">
+        <div class="flex items-center gap-2 px-4 py-2 bg-primary-100 text-primary-700 rounded-full font-medium">
+          <span class="w-5 h-5 rounded-full bg-primary-600 text-white flex items-center justify-center text-xs">1</span>
+          <span>选热榜</span>
+        </div>
+        <i class="fas fa-arrow-right text-slate-300"></i>
+        <div class="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-600 rounded-full">
+          <span class="w-5 h-5 rounded-full bg-slate-400 text-white flex items-center justify-center text-xs">2</span>
+          <span>AI 写作</span>
+        </div>
+        <i class="fas fa-arrow-right text-slate-300"></i>
+        <div class="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-600 rounded-full">
+          <span class="w-5 h-5 rounded-full bg-slate-400 text-white flex items-center justify-center text-xs">3</span>
+          <span>一键发布</span>
+        </div>
+      </div>
+
+      <!-- Three Column Layout -->
+      <div class="grid lg:grid-cols-3 gap-6">
+        
+        <!-- Left: Hot Ranks -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <div class="px-5 py-4 border-b border-slate-100 bg-slate-50/50">
+            <div class="flex items-center justify-between">
+              <h2 class="font-semibold text-slate-800 flex items-center gap-2">
+                <i class="fas fa-fire text-orange-500"></i>
+                热门话题
+              </h2>
+              <button onclick="App.refreshHotRanks()" class="text-slate-400 hover:text-primary-600 transition-colors">
+                <i class="fas fa-sync-alt"></i>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Platform Tabs -->
+          <div class="flex border-b border-slate-100 overflow-x-auto">
+            <button onclick="App.switchPlatform('weibo')" class="platform-tab px-4 py-3 text-sm font-medium text-primary-600 border-b-2 border-primary-600 bg-primary-50/50 whitespace-nowrap" data-platform="weibo">
+              🔥 微博
+            </button>
+            <button onclick="App.switchPlatform('zhihu')" class="platform-tab px-4 py-3 text-sm font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap" data-platform="zhihu">
+              📚 知乎
+            </button>
+            <button onclick="App.switchPlatform('bilibili')" class="platform-tab px-4 py-3 text-sm font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap" data-platform="bilibili">
+              📺 B站
+            </button>
+            <button onclick="App.switchPlatform('baidu')" class="platform-tab px-4 py-3 text-sm font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap" data-platform="baidu">
+              🔍 百度
+            </button>
+            <button onclick="App.switchPlatform('douyin')" class="platform-tab px-4 py-3 text-sm font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap" data-platform="douyin">
+              🎵 抖音
+            </button>
+          </div>
+
+          <!-- Hot List -->
+          <div id="hot-list" class="divide-y divide-slate-100 max-h-[600px] overflow-y-auto">
+            <div class="p-8 text-center text-slate-400">
+              <i class="fas fa-spinner fa-spin text-2xl mb-3"></i>
+              <p>正在加载热榜...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Middle: AI Writing -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <div class="px-5 py-4 border-b border-slate-100 bg-slate-50/50">
+            <h2 class="font-semibold text-slate-800 flex items-center gap-2">
+              <i class="fas fa-pen-fancy text-primary-600"></i>
+              AI 写作
+            </h2>
+          </div>
+
+          <div class="p-5 space-y-4">
+            <!-- Topic Input -->
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-2">文章主题</label>
+              <textarea id="topic-input" rows="2" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none transition-all" placeholder="点击左侧热榜话题自动填充，或输入自定义主题..."></textarea>
+            </div>
+
+            <!-- Style Select -->
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-2">写作风格</label>
+              <select id="style-select" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
+                <option value="">加载中...</option>
+              </select>
+            </div>
+
+            <!-- Requirements -->
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-2">写作要求 <span class="text-slate-400 font-normal">(可选)</span></label>
+              <textarea id="requirements-input" rows="2" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none transition-all" placeholder="例如：1000字左右，通俗易懂，适合大众阅读..."></textarea>
+            </div>
+
+            <!-- Generate Button -->
+            <button id="btn-generate" onclick="App.generateArticle()" disabled class="w-full px-6 py-3.5 bg-primary-600 text-white font-medium rounded-xl hover:bg-primary-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2">
+              <i class="fas fa-magic"></i>
+              <span>开始写作</span>
+            </button>
+
+            <!-- Article Output -->
+            <div id="article-output" class="hidden border-t border-slate-100 pt-4">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-sm font-medium text-slate-700">生成的文章</span>
+                <button onclick="App.copyArticle()" class="text-xs text-slate-400 hover:text-primary-600 flex items-center gap-1">
+                  <i class="far fa-copy"></i>
+                  复制
+                </button>
+              </div>
+              <div id="article-content" class="bg-slate-50 rounded-xl p-4 max-h-[300px] overflow-y-auto text-sm leading-relaxed text-slate-700 prose prose-slate"></div>
+              
+              <!-- Next Step Button -->
+              <button id="btn-titles" onclick="App.generateTitles()" disabled class="w-full mt-4 px-6 py-3 bg-emerald-600 text-white font-medium rounded-xl hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2">
+                <i class="fas fa-heading"></i>
+                <span>生成标题摘要</span>
+              </button>
+            </div>
+
+            <!-- Titles Output -->
+            <div id="titles-output" class="hidden border-t border-slate-100 pt-4">
+              <div class="text-sm font-medium text-slate-700 mb-3">选择标题</div>
+              <div id="titles-list" class="space-y-2"></div>
+              
+              <button id="btn-cover" onclick="App.generateCoverPrompts()" class="w-full mt-4 px-6 py-3 bg-violet-600 text-white font-medium rounded-xl hover:bg-violet-700 transition-all flex items-center justify-center gap-2">
+                <i class="fas fa-image"></i>
+                <span>生成封面图</span>
+              </button>
+            </div>
+
+            <!-- Cover Output -->
+            <div id="cover-output" class="hidden border-t border-slate-100 pt-4">
+              <div class="text-sm font-medium text-slate-700 mb-3">选择封面风格</div>
+              <div id="cover-prompts" class="space-y-2 mb-4"></div>
+              <div id="cover-image-container" class="hidden">
+                <img id="cover-image" src="" alt="封面图" class="w-full rounded-xl">
+                <div class="flex gap-2 mt-3">
+                  <button onclick="App.downloadCover()" class="flex-1 px-4 py-2 bg-slate-100 text-slate-700 font-medium rounded-lg hover:bg-slate-200 transition-all">
+                    <i class="fas fa-download mr-1"></i> 下载封面
+                  </button>
+                  <button onclick="App.fillPublishForm()" class="flex-1 px-4 py-2 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-all">
+                    <i class="fas fa-paper-plane mr-1"></i> 去发布
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Publish -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <div class="px-5 py-4 border-b border-slate-100 bg-emerald-50/50">
+            <h2 class="font-semibold text-slate-800 flex items-center gap-2">
+              <i class="fab fa-weixin text-emerald-600 text-xl"></i>
+              发布到公众号
+            </h2>
+          </div>
+
+          <div class="p-5 space-y-4">
+            <!-- WeChat Config -->
+            <div class="bg-slate-50 rounded-xl p-4 space-y-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-500 mb-1">AppID</label>
+                <input type="text" id="publish-appid" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent" placeholder="wx...">
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-500 mb-1">AppSecret</label>
+                <input type="password" id="publish-secret" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent" placeholder="...">
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="checkbox" id="save-config" class="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                <label for="save-config" class="text-xs text-slate-500">保存配置到浏览器</label>
+              </div>
+            </div>
+
+            <!-- Article Info -->
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-2">文章标题 <span class="text-red-500">*</span></label>
+              <input type="text" id="publish-title" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all" placeholder="输入文章标题">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">作者</label>
+                <input type="text" id="publish-author" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all" placeholder="作者名称" value="作者">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">封面图</label>
+                <div id="publish-cover-preview" class="h-[50px] bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 text-sm">
+                  <i class="fas fa-image mr-2"></i> 未选择
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-2">文章内容 <span class="text-red-500">*</span> <span class="text-slate-400 font-normal">(支持 Markdown)</span></label>
+              <textarea id="publish-content" rows="10" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none transition-all font-mono text-sm" placeholder="粘贴文章内容..."></textarea>
+            </div>
+
+            <!-- Publish Button -->
+            <button onclick="App.publishToWechat()" id="btn-publish" class="w-full px-6 py-4 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20">
+              <i class="fas fa-paper-plane"></i>
+              <span>发布到草稿箱</span>
+            </button>
+
+            <!-- Result -->
+            <div id="publish-result" class="hidden rounded-xl p-4 text-sm"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="App.closeSettings()"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 space-y-5 animate-modal-in max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-slate-800">API 设置</h2>
+        <button onclick="App.closeSettings()" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <p class="text-sm text-slate-500">配置你的 AI 模型接口，支持所有 OpenAI 兼容 API。</p>
+      <div class="space-y-5">
+        <!-- Text Model -->
+        <div class="space-y-3">
+          <div class="text-sm font-semibold text-slate-700 flex items-center gap-2"><i class="fas fa-pen-nib text-primary-500"></i>文本生成模型</div>
+          <div>
+            <label class="block text-sm font-medium text-slate-600 mb-1">API Base URL</label>
+            <input id="settings-api-url" type="url" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" placeholder="https://api.openai.com/v1">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-600 mb-1">API Key</label>
+            <input id="settings-api-key" type="password" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" placeholder="sk-...">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-600 mb-1">模型名称</label>
+            <input id="settings-model-name" type="text" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" placeholder="gpt-4o">
+          </div>
+        </div>
+        <hr class="border-slate-200">
+        <!-- Image Model -->
+        <div class="space-y-3">
+          <div class="text-sm font-semibold text-slate-700 flex items-center gap-2"><i class="fas fa-image text-emerald-500"></i>图片生成模型</div>
+          <div>
+            <label class="block text-sm font-medium text-slate-600 mb-1">API Base URL</label>
+            <input id="settings-image-api-url" type="url" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all" placeholder="https://api.openai.com/v1">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-600 mb-1">API Key</label>
+            <input id="settings-image-api-key" type="password" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all" placeholder="sk-...">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-600 mb-1">模型名称</label>
+            <input id="settings-image-model" type="text" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all" placeholder="dall-e-3">
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button onclick="App.closeSettings()" class="flex-1 px-4 py-2.5 border border-slate-300 text-slate-600 font-medium rounded-xl hover:bg-slate-50 transition-all">取消</button>
+        <button onclick="App.saveSettings()" class="flex-1 px-4 py-2.5 bg-primary-600 text-white font-medium rounded-xl hover:bg-primary-700 transition-all">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-2"></div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

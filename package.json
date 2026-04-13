@@ -1,0 +1,35 @@
+{
+  "name": "wechat-content-workflow",
+  "version": "1.0.0",
+  "description": "公众号内容创作工作流 - 热榜 + AI写作 + 一键发布",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "npm run start:services",
+    "start:services": "concurrently \"npm run start:dailyhot\" \"npm run start:main\" --kill-others",
+    "start:dailyhot": "cd services/dailyhot-api && NODE_ENV=development node dist/index.js",
+    "start:main": "sleep 2 && node server/index.js",
+    "dev": "concurrently \"npm run dev:dailyhot\" \"npm run dev:main\" --kill-others",
+    "dev:dailyhot": "cd services/dailyhot-api && NODE_ENV=development node --watch dist/index.js",
+    "dev:main": "sleep 2 && node --watch server/index.js",
+    "install:all": "npm install && cd services/dailyhot-api && npm install"
+  },
+  "keywords": [
+    "wechat",
+    "公众号",
+    "AI写作",
+    "热榜",
+    "内容创作"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "multer": "^1.4.5-lts.1",
+    "canvas": "^2.11.2",
+    "markdown-it": "^14.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

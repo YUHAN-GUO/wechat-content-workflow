@@ -1,0 +1,30 @@
+{
+  "_comment": "公众号内容创作工作流 - 配置文件",
+  "_description": "填写以下配置后重启服务即可生效",
+  
+  "textModel": {
+    "_comment": "文本生成模型配置（支持 OpenAI 兼容 API）",
+    "apiUrl": "",
+    "apiKey": "",
+    "modelName": ""
+  },
+  
+  "imageModel": {
+    "_comment": "图片生成模型配置（用于生成封面图）",
+    "apiUrl": "",
+    "apiKey": "",
+    "modelName": ""
+  },
+  
+  "wechat": {
+    "_comment": "微信公众号配置（用于发布到草稿箱）",
+    "appid": "",
+    "secret": ""
+  },
+  
+  "server": {
+    "_comment": "服务端口配置（一般不需要修改）",
+    "port": 3000,
+    "dailyHotPort": 6688
+  }
+}
